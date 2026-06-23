@@ -37,17 +37,17 @@ to too much at once. Keeping each slice small (≤ ~1/6 of the context window) a
 aggregating multiple passes by consensus recovers the quiet facts and discards
 the one-off errors.
 
-## Read the full pattern
+## The docs
 
-The complete write-up — intent, structure, the context-allocation rule,
-consensus-vs-union discipline, the overlap/consensus sequencing caveat, async
-execution, and the reference implementation — lives in:
+| Document | What it is | Read it if you're… |
+| --- | --- | --- |
+| **[Ledger-pattern.md](Ledger-pattern.md)** | The formal spec — intent, structure, the context-allocation rule, consensus-vs-union discipline, the overlap/consensus sequencing caveat, async execution. | …learning the pattern in full. |
+| **[The-Ledger-Pattern-Paper.md](The-Ledger-Pattern-Paper.md)** | The original essay it was distilled from — the story, the motivation, the GoF framing. | …after the *why*, in prose. |
+| **[ledger-agent.md](ledger-agent.md)** | The self-contained drop-in recipe — trigger, parameter defaults, algorithm, invariants — for an LLM/agent to apply mid-task. | …pointing an LLM at it (frontier models can self-orchestrate from this). |
+| **[implementing-locally.md](implementing-locally.md)** | Implementer guide for wiring a small / local model into a harness: the model does no bookkeeping, the code owns sizing/slicing/queue/ledger/assembly. | …building the harness around a local 8b. |
 
-**➡️ [Ledger-pattern.md](Ledger-pattern.md)**
-
-**Implementing it (or pointing an LLM/agent at it)?** The self-contained recipe —
-trigger, parameter defaults, algorithm, and invariants — is in
-**➡️ [ledger-agent.md](ledger-agent.md)**.
+There's also a Claude Code skill at `.claude/skills/ledger-pattern/` that
+auto-invokes the recipe on matching work.
 
 ## License
 
