@@ -45,9 +45,11 @@ attend to too much at once.
    relative to silently losing an edge fact.
 3. **Process** — send one slice at a time. With async execution (see *Execution*
    below), each slice is a queued unit of work, not a blocking call.
-4. **Assemble** — merge and de-duplicate the per-slice results at the end.
-   **Span-overlap dedup runs first, before consensus counting** (see the
-   sequencing caveat).
+4. **Assemble** — combine the per-slice results at the end; **how** depends on the
+   task. *Extraction* de-duplicates and keeps by consensus (span-overlap dedup
+   first — see the sequencing caveat); *generation* concatenates the slices in
+   order and reconciles each seam. These are the two Assembly-discipline sections
+   below.
 
 ## The context allocation rule (prompt integrity)
 
@@ -88,7 +90,11 @@ causes the classic regression below:
 So the cap is the invariant; the remainder is output-reserve when you generate
 and recall-slack when you extract.
 
-## Assembly discipline: aggregate by consensus, not union
+This fork doesn't stop at input sizing — it reaches all the way to assembly. See
+the two **Assembly discipline** sections below: extraction aggregates passes by
+*consensus*; generation stitches slices by *ordered concatenation*.
+
+## Assembly discipline — extraction: aggregate by consensus, not union
 
 The assemble step (4) is not free, and it has its own anti-pattern. When you
 process the same input multiple times to beat single-pass variance, **naive
@@ -133,6 +139,41 @@ fact to one occurrence per pass, *then* count across passes. The normalization
 machinery is already required for consensus (above); overlap just makes running
 it non-optional.
 
+## Assembly discipline — generation: concatenate in order, not consensus
+
+Everything above assumes **extraction** — pulling a few discrete items out of a
+large input, where multiple passes let you *vote*. **Generation is the other
+branch, and it assembles differently.** When the task is producing *large output*
+— arc rendering, scene prose, a long-form summary — the slices are sections of
+one continuous artifact, not independent samples of the same facts. You can't
+vote on them; you **stitch them in order.**
+
+The discipline is **ordered concatenation with seam reconciliation**:
+
+1. **Read the ledger in slice order** — not as an unordered bag. Slice 3's output
+   follows slice 2's because that's the order of the artifact.
+2. **Reconcile each seam.** Where two slices meet, drop the restated overlap span,
+   smooth the transition, and check continuity — names, tense, any thread left
+   open at the end of the previous slice. Here the 10–20% overlap is a
+   **continuity buffer**, not recall insurance: it exists so the seam reads
+   smoothly, and you *remove* the restatement when you splice.
+3. **Never consensus-filter prose.** You're assembling chapters in sequence, not
+   keeping the sentences that happen to recur. "Keep what appears in ≥
+   `floor(N/2)+1` passes" is meaningless for a narrative — it would shred it.
+
+### Multi-pass for generation is best-of, not consensus
+
+N passes still help, but the selection criterion flips. For generation, the N
+passes are **independent candidate renderings of the same section**, and you
+**select the most coherent with a judge** — you don't merge or vote them
+token-by-token. Consensus (extraction) keeps what recurs; best-of (generation)
+keeps the single best whole. Same "run it N times" move; opposite combinator.
+
+> The mirror of the extraction trap: applying consensus to prose. A one-off error
+> *should* drop out of an extraction; in a generation, that same "outlier" might
+> be the one pass that nailed the paragraph — voting it away is exactly wrong.
+> **Decide the branch before you assemble.**
+
 ## Execution: process asynchronously, off a queue
 
 Multi-pass over dozens of slices is a lot of LLM calls. Running them
@@ -176,9 +217,10 @@ analysis, scene recap, digest, summary rendering).
   local-model runs (job id, progress, done alert).
 - **−** More LLM calls (bounded, and cheap relative to losing the data); overlap
   adds redundant slice coverage (also bounded — the span-dedup step pays it back).
-- **−** Assembly must de-duplicate across slices (a fact restated in two windows),
-  and span-overlap dedup must run *before* consensus counting or it inflates the
-  count.
+- **−** *(extraction)* Assembly must de-duplicate across slices (a fact restated
+  in two windows), and span-overlap dedup must run *before* consensus counting or
+  it inflates the count. *(generation)* Assembly must reconcile each seam — drop
+  the restated overlap and smooth the transition — or the joins read roughly.
 
 ## Reference implementation
 
