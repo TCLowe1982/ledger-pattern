@@ -6,10 +6,14 @@ within its own work. This is the actionable core; the full write-up explains
 
 ## Reach for the pattern when
 
-Either is true:
+Any is true:
 
 - a large text input produced a lossy / triaged / mis-attributed result, OR
-- a single call would put more than ~1/3 of the model's context in the prompt.
+- a single call would put more than ~1/3 of the model's context in the prompt, OR
+- detail is preferred over speed: the input fits in context, but coverage must
+  be exhaustive — a single pass triages even on large-context models. (Applies
+  to images too: tile a large image and process one tile at a time instead of
+  taking one whole-image look.)
 
 ## First, name the branch: extraction or generation?
 

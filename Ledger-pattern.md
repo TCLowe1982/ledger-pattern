@@ -201,13 +201,23 @@ other — the ledger is on disk *because* the work is long-running and backgroun
 
 ## Applicability
 
-Use it whenever:
+Use it whenever any of these is true:
 
 - a large text input gave a lossy/triaged/mis-attributed result, OR
-- a single call would put more than ~1/3 of the model's context in the prompt.
+- a single call would put more than ~1/3 of the model's context in the prompt, OR
+- **detail is preferred over speed** — even when the input fits comfortably in
+  context. A single pass is attention-limited, not just context-limited: the
+  model still triages, and windowed passes recover what it skims. Field-tested
+  on deep research over a long text source with a frontier model — the pattern
+  increased search depth and result quality despite the input fitting easily.
 
 Especially: extraction/classification over long transcripts (fact capture, beat
 analysis, scene recap, digest, summary rendering).
+
+The input doesn't have to be text. The same shape works on a **large image** —
+tile it and process one tile at a time against the ledger. A tiled sweep of a
+game world map found features a whole-image pass had missed. Any input the
+model attends to unevenly is a candidate.
 
 ## Consequences
 

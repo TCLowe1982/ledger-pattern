@@ -1,6 +1,6 @@
 ---
 name: ledger-pattern
-description: Apply the Ledger Pattern to reliably process or generate large text through a context-limited LLM. Use when a long input gave a lossy / triaged / mis-attributed result, when a single call would put more than ~1/3 of the model's context in the prompt, or when generating long-form output (arc rendering, scene prose, long summaries, digests). Windows the input into token-sized slices, processes one slice at a time against a durable on-disk ledger, runs multiple passes, and assembles by consensus (extraction) or ordered concatenation (generation). Triggers on long-transcript fact extraction, beat/scene analysis, recap/digest over long conversations, or rendering large outputs that overflow a single prompt.
+description: Apply the Ledger Pattern to reliably process or generate large text through a context-limited LLM. Use when a long input gave a lossy / triaged / mis-attributed result, when a single call would put more than ~1/3 of the model's context in the prompt, or when generating long-form output (arc rendering, scene prose, long summaries, digests). Windows the input into token-sized slices, processes one slice at a time against a durable on-disk ledger, runs multiple passes, and assembles by consensus (extraction) or ordered concatenation (generation). Triggers on long-transcript fact extraction, beat/scene analysis, recap/digest over long conversations, or rendering large outputs that overflow a single prompt. Also use when detail is preferred over speed — exhaustive research/extraction over a source that technically fits in context, or sweeping a large image tile-by-tile.
 ---
 
 # The Ledger Pattern
@@ -16,10 +16,14 @@ This skill is the actionable recipe.
 
 ## Reach for this when
 
-Either is true:
+Any is true:
 
 - a large text input produced a lossy / triaged / mis-attributed result, OR
-- a single call would put more than ~1/3 of the model's context in the prompt.
+- a single call would put more than ~1/3 of the model's context in the prompt, OR
+- detail is preferred over speed: the input fits in context, but coverage must
+  be exhaustive — a single pass triages even on large-context models. (Applies
+  to images too: tile a large image and process one tile at a time instead of
+  taking one whole-image look.)
 
 ## First, name the branch: extraction or generation?
 

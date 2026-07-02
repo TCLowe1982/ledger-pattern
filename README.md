@@ -41,6 +41,11 @@ to too much at once. Keeping each slice small (≤ ~1/6 of the context window) a
 aggregating multiple passes by consensus recovers the quiet facts and discards
 the one-off errors.
 
+This holds even when the input *fits* — triage is a property of attention, not
+just context — so the pattern also pays off as a pure recall amplifier whenever
+detail matters more than speed. And the input needn't be text: tiling a large
+image through the same loop surfaces details a whole-image pass misses.
+
 That's the *extraction* path. The same windowing also drives *generation* (long
 output): there the passes are best-of candidates and the slices are concatenated
 in order, not voted on — one pattern, two assembly modes.
